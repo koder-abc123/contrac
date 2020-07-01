@@ -1,0 +1,153 @@
+{
+	"name": "contrac",
+	"displayName": "ContraC",
+	"version": "0.0.1",
+	"publisher": "koder_abc123",
+	"description": "Vscode tool to aid in clarity development",
+	"author": {
+		"name": "koder_abc123",
+		"email": "koder_abc123@protonmail.com"
+	},
+	"license": "MIT",
+	"keywords": [
+		"clarity"
+	],
+	"engines": {
+		"vscode": "^1.46.0"
+	},
+	"categories": [
+		"Debuggers"
+	],
+	"private": true,
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/koder-abc123/contrac.git"
+	},
+	"bugs": {
+		"url": "https://github.com/koder-abc123/contrac/issues"
+	},
+	"scripts": {
+		"vscode:prepublish": "yarn run compile",
+		"compile": "tsc -p ./src",
+		"lint": "eslint src --ext ts",
+		"watch": "tsc -watch -p ./src",
+		"pretest": "yarn run compile && yarn run lint",
+		"test": "node ./out/test/runTest.js",
+		"package": "vsce package",
+		"publish": "vsce publish"
+	},
+	"dependencies": {
+		"await-notify": "1.0.1",
+		"vscode-debugadapter": "1.41.0"
+	},
+	"devDependencies": {
+		"@types/vscode": "^1.46.0",
+		"@types/glob": "^7.1.1",
+		"@types/mocha": "^7.0.2",
+		"@types/node": "^13.11.0",
+		"eslint": "^6.8.0",
+		"@typescript-eslint/parser": "^2.30.0",
+		"@typescript-eslint/eslint-plugin": "^2.30.0",
+		"glob": "^7.1.6",
+		"mocha": "^7.1.2",
+		"typescript": "^3.8.3",
+		"vscode-test": "^1.3.0",
+		"vscode-debugadapter-testsupport": "1.41.0",
+		"vsce": "1.77.0"
+	},
+	"main": "./out/extension",
+	"activationEvents": [
+		"onCommand:extension.mock-debug.getProgramName"
+	],
+	"contributes": {
+		"menus": {
+			"editor/title": [
+				{
+					"command": "extension.mock-debug.runEditorContents",
+					"when": "resourceLangId == markdown",
+					"group": "1_run@10"
+				},
+				{
+					"command": "extension.mock-debug.debugEditorContents",
+					"when": "resourceLangId == markdown",
+					"group": "1_run@20"
+				}
+			]
+		},
+		"commands": [
+			{
+				"command": "extension.mock-debug.debugEditorContents",
+				"title": "Debug File",
+				"icon": "$(debug-alt)"
+			},
+			{
+				"command": "extension.mock-debug.runEditorContents",
+				"title": "Run File",
+				"icon": "$(play)"
+			}
+		],
+		"breakpoints": [
+			{
+				"language": "clarity"
+			}
+		],
+		"debuggers": [
+			{
+				"type": "mock",
+				"label": "Contrac",
+				"program": "./out/debugAdapter.js",
+				"runtime": "node",
+				"languages": ["clarity"],
+				"configurationAttributes": {
+					"launch": {
+						"required": [
+							"program"
+						],
+						"properties": {
+							"program": {
+								"type": "string",
+								"description": "Absolute path to a text file.",
+								"default": "${workspaceFolder}/${command:AskForProgramName}"
+							},
+							"stopOnEntry": {
+								"type": "boolean",
+								"description": "Automatically stop after launch.",
+								"default": true
+							},
+							"trace": {
+								"type": "boolean",
+								"description": "Enable logging of the Debug Adapter Protocol.",
+								"default": true
+							}
+						}
+					}
+				},
+				"initialConfigurations": [
+					{
+						"type": "mock",
+						"request": "launch",
+						"name": "Ask for file name",
+						"program": "${workspaceFolder}/${command:AskForProgramName}",
+						"stopOnEntry": true
+					}
+				],
+				"configurationSnippets": [
+					{
+						"label": "Contrac: Launch",
+						"description": "A new configuration for 'debugging' a user selected markdown file.",
+						"body": {
+							"type": "mock",
+							"request": "launch",
+							"name": "Ask for file name",
+							"program": "^\"\\${workspaceFolder}/\\${command:AskForProgramName}\"",
+							"stopOnEntry": true
+						}
+					}
+				],
+				"variables": {
+					"AskForProgramName": "extension.mock-debug.getProgramName"
+				}
+			}
+		]
+	}
+}
