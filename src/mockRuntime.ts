@@ -1,6 +1,8 @@
 
 import { readFileSync,createReadStream } from 'fs';
 import { EventEmitter } from 'events';
+//import * as vscode from "vscode";
+var vscode = require("vscode");
 
 export interface MockBreakpoint {
 	id: number;
@@ -47,7 +49,7 @@ export class MockRuntime extends EventEmitter {
 	 * Start executing the given program.
 	 */
 	public start(program: string, stopOnEntry: boolean, noDebug: boolean) {
-		console.log("MR:start");
+		//console.log("MR:start");
 		this._noDebug = noDebug;
 
 		this.loadSource(program);
@@ -62,11 +64,9 @@ export class MockRuntime extends EventEmitter {
 			// we just start to run until we hit a breakpoint or an exception
 			this.continue();
 		}
-		console.log("RUNNING PROGRAM");
 
-		//let contentLines = readFileSync('/home/cyril/bs_hack/stacks-blockchain/foo2.txt', 'utf8').split(/\r?\n/);
-		//console.log(contentLines);
-		//let debug_obj: any = [];
+
+
 
 		let i = 0;
 		let debugProgram = this;
@@ -92,11 +92,11 @@ export class MockRuntime extends EventEmitter {
 			if (remaining.length > 0) {
 			func(remaining);
 			}
-			console.log("value of i:,cl",i,debugProgram.contentLines.length);
+
 
 			for(let i=1; i < debugProgram.contentLines.length; i++) {
 				let kk: any = debugProgram.contentLines[i];
-				console.log(kk.env);
+			//	console.log(kk.env);
 			}
 
 			debugProgram.setBreakPoint(debugProgram._sourceFile,debugProgram.contentLines[debugProgram._global_counter].span.start_line);
@@ -108,8 +108,10 @@ export class MockRuntime extends EventEmitter {
 			debugProgram.contentLines[++i] = JSON.parse(data);
 		  }
 
-		  var input = createReadStream('/home/cyril/bs_hack/vscode-mock-debug/meta_debug_with_stack.ctc');
+
+		  var input = createReadStream(vscode.workspace.rootPath + "/meta_debug_with_stack.ctc");
 		  readLines(input, func);
+
 
 
 
@@ -159,15 +161,15 @@ export class MockRuntime extends EventEmitter {
 		}
 		this._currentColumn = this.contentLines[this._global_counter].span.start_column;;
 		this.sendEvent('stopOnBreakpoint');
-		console.log("line number " , this.contentLines[this._global_counter].span.start_line,this._global_counter);
-		console.log("column number " , this.contentLines[this._global_counter].span.start_column);
+		//console.log("line number " , this.contentLines[this._global_counter].span.start_line,this._global_counter);
+		//console.log("column number " , this.contentLines[this._global_counter].span.start_column);
 	}
 
 	/**
 	 * Step to the next/previous non empty line.
 	 */
 	public step(reverse = false, event = 'stopOnStep') {
-		console.log("MR:reverse",event);
+		//console.log("MR:reverse",event);
 		this.run(reverse, event);
 	}
 
@@ -175,7 +177,7 @@ export class MockRuntime extends EventEmitter {
 	 * "Step into" for Mock debug means: go to next character
 	 */
 	public stepIn(targetId: number | undefined) {
-		console.log("MR:stepIn");
+		//console.log("MR:stepIn");
 		// if (typeof targetId === 'number') {
 		// 	this._currentColumn = targetId;
 		// 	this.sendEvent('stopOnStep');
@@ -195,7 +197,7 @@ export class MockRuntime extends EventEmitter {
 	 * "Step out" for Mock debug means: go to previous character
 	 */
 	public stepOut() {
-		console.log("MR:stepOut");
+		//console.log("MR:stepOut");
 		// if (typeof this._currentColumn === 'number') {
 		// 	this._currentColumn -= 1;
 		// 	if (this._currentColumn === 0) {
@@ -206,7 +208,7 @@ export class MockRuntime extends EventEmitter {
 	}
 
 	public getStepInTargets(frameId: number): { id: number, label: string}[] {
-		console.log("MR:get Stepsin TArget");
+		//console.log("MR:get Stepsin TArget");
 		// const line = this._sourceLines[this._currentLine].trim();
 
 		// // every word of the current line becomes a stack frame.
@@ -231,7 +233,7 @@ export class MockRuntime extends EventEmitter {
 	 * Returns a fake 'stacktrace' where every 'stackframe' is a word from the current line.
 	 */
 	public stack(startFrame: number, endFrame: number): any {
-		console.log("MR:stack");
+		//console.log("MR:stack");
 		const words = this._sourceLines[this._currentLine].trim().split(/\s+/);
 		//let stackArray = this.contentLines[this._global_counter].context.stack;
 		let stackArray = this.contentLines[this._global_counter].stack.stack;
@@ -259,7 +261,7 @@ export class MockRuntime extends EventEmitter {
 	}
 
 	public getBreakpoints(path: string, line: number): number[] {
-		console.log("MR:get BP");
+		//console.log("MR:get BP");
 		const l = this._sourceLines[line];
 
 		let sawSpace = true;
@@ -282,7 +284,7 @@ export class MockRuntime extends EventEmitter {
 	 * Set breakpoint in file with given line.
 	 */
 	public setBreakPoint(path: string, line: number) : MockBreakpoint {
-		console.log("MR:set BP");
+		//console.log("MR:set BP");
 		const bp = <MockBreakpoint> { verified: false, line, id: this._breakpointId++ };
 		let bps = this._breakPoints.get(path);
 		if (!bps) {
@@ -300,7 +302,7 @@ export class MockRuntime extends EventEmitter {
 	 * Clear breakpoint in file with given line.
 	 */
 	public clearBreakPoint(path: string, line: number) : MockBreakpoint | undefined {
-		console.log("MR:cleat BP");
+		//console.log("MR:cleat BP");
 		let bps = this._breakPoints.get(path);
 		if (bps) {
 			const index = bps.findIndex(bp => bp.line === line);
@@ -317,7 +319,7 @@ export class MockRuntime extends EventEmitter {
 	 * Clear all breakpoints for file.
 	 */
 	public clearBreakpoints(path: string): void {
-		console.log("MR:cleatr BPS");
+		//console.log("MR:cleatr BPS");
 		this._breakPoints.delete(path);
 	}
 
@@ -342,7 +344,7 @@ export class MockRuntime extends EventEmitter {
 	// private methods
 
 	private loadSource(file: string) {
-		console.log("MR:loadsource",this._sourceFile);
+		//console.log("MR:loadsource",this._sourceFile);
 		if (this._sourceFile !== file) {
 			this._sourceFile = file;
 			this._sourceLines = readFileSync(this._sourceFile).toString().split('\n');
@@ -354,7 +356,7 @@ export class MockRuntime extends EventEmitter {
 	 * If stepEvent is specified only run a single step and emit the stepEvent.
 	 */
 	private run(reverse = false, stepEvent?: string) {
-		console.log("MR:run");
+		//console.log("MR:run");
 		if (reverse) {
 			for (let ln = this._currentLine-1; ln >= 0; ln--) {
 				if (this.fireEventsForLine(ln, stepEvent)) {
@@ -389,7 +391,7 @@ export class MockRuntime extends EventEmitter {
 	}
 
 	private verifyBreakpoints(path: string) : void {
-		console.log("MR:verify BPs");
+		//console.log("MR:verify BPs");
 		if (this._noDebug) {
 			return;
 		}

@@ -141,7 +141,7 @@ export class MockDebugSession extends LoggingDebugSession {
 		response.body.supportsStepInTargetsRequest = true;
 
 		this.sendResponse(response);
-		console.log("MD:Init Request");
+		//console.log("MD:Init Request");
 		// since this debug adapter can accept configuration requests like 'setBreakpoint' at any time,
 		// we request them early by sending an 'initializeRequest' to the frontend.
 		// The frontend will end the configuration sequence by calling 'configurationDone' request.
@@ -154,13 +154,13 @@ export class MockDebugSession extends LoggingDebugSession {
 	 */
 	protected configurationDoneRequest(response: DebugProtocol.ConfigurationDoneResponse, args: DebugProtocol.ConfigurationDoneArguments): void {
 		super.configurationDoneRequest(response, args);
-		console.log("MD:Config Done Request");
+		//console.log("MD:Config Done Request");
 		// notify the launchRequest that configuration has finished
 		this._configurationDone.notify();
 	}
 
 	protected async launchRequest(response: DebugProtocol.LaunchResponse, args: LaunchRequestArguments) {
-		console.log("MD:Launch Request");
+		//console.log("MD:Launch Request");
 		// make sure to 'Stop' the buffered logging if 'trace' is not set
 		logger.setup(args.trace ? Logger.LogLevel.Verbose : Logger.LogLevel.Stop, false);
 
@@ -174,7 +174,7 @@ export class MockDebugSession extends LoggingDebugSession {
 	}
 
 	protected setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse, args: DebugProtocol.SetBreakpointsArguments): void {
-		console.log("MD:Set BP Request");
+		//console.log("MD:Set BP Request");
 		const path = <string>args.source.path;
 		const clientLines = args.lines || [];
 
@@ -198,7 +198,7 @@ export class MockDebugSession extends LoggingDebugSession {
 
 	protected breakpointLocationsRequest(response: DebugProtocol.BreakpointLocationsResponse, args: DebugProtocol.BreakpointLocationsArguments, request?: DebugProtocol.Request): void {
 
-		console.log("MD:BP Location Request");
+		//console.log("MD:BP Location Request");
 		if (args.source.path) {
 			const bps = this._runtime.getBreakpoints(args.source.path, this.convertClientLineToDebugger(args.line));
 			response.body = {
@@ -218,7 +218,7 @@ export class MockDebugSession extends LoggingDebugSession {
 	}
 
 	protected threadsRequest(response: DebugProtocol.ThreadsResponse): void {
-		console.log("MD:Threads Request");
+		//console.log("MD:Threads Request");
 		// runtime supports no threads so just return a default thread.
 		response.body = {
 			threads: [
@@ -229,7 +229,7 @@ export class MockDebugSession extends LoggingDebugSession {
 	}
 
 	protected stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments): void {
-		console.log("MD:stackTrace Request");
+		//console.log("MD:stackTrace Request");
 		const startFrame = typeof args.startFrame === 'number' ? args.startFrame : 0;
 		const maxLevels = typeof args.levels === 'number' ? args.levels : 1000;
 		const endFrame = startFrame + maxLevels;
@@ -250,7 +250,7 @@ export class MockDebugSession extends LoggingDebugSession {
 	}
 
 	protected scopesRequest(response: DebugProtocol.ScopesResponse, args: DebugProtocol.ScopesArguments): void {
-		console.log("MD:scopes Request");
+		//console.log("MD:scopes Request");
 
 
 
@@ -264,17 +264,17 @@ export class MockDebugSession extends LoggingDebugSession {
 	}
 
 	protected async variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments, request?: DebugProtocol.Request) {
-		console.log("MD:Variable Request");
+		//console.log("MD:Variable Request");
 		const variables: DebugProtocol.Variable[] = [];
 
 		let context_variables = this._runtime.getVariables();
 		let global_variables = this._runtime.getGlobalVariables();
 
-		console.log("MD",context_variables);
+		//console.log("MD",context_variables);
 
 		if (this._isLongrunning.get(args.variablesReference)) {
 			// long running
-			console.log("long running");
+			//console.log("long running");
 			if (request) {
 				this._cancelationTokens.set(request.seq, false);
 			}
@@ -297,7 +297,7 @@ export class MockDebugSession extends LoggingDebugSession {
 			}
 
 		} else {
-			console.log("non long running");
+			//console.log("non long running");
 		//	const id = this._variableHandles.get(args.variablesReference);
 
 			// for (var prop in context_variables) {
@@ -368,31 +368,31 @@ export class MockDebugSession extends LoggingDebugSession {
 	}
 
 	protected continueRequest(response: DebugProtocol.ContinueResponse, args: DebugProtocol.ContinueArguments): void {
-		console.log("MD:continue Request");
+
 		this._runtime.continue();
 		this.sendResponse(response);
 	}
 
 	protected reverseContinueRequest(response: DebugProtocol.ReverseContinueResponse, args: DebugProtocol.ReverseContinueArguments) : void {
-		console.log("MD:reverse Request");
+		//console.log("MD:reverse Request");
 		this._runtime.continue(true);
 		this.sendResponse(response);
  	}
 
 	protected nextRequest(response: DebugProtocol.NextResponse, args: DebugProtocol.NextArguments): void {
-		console.log("MD:next Request");
+		//console.log("MD:next Request");
 	//	this._runtime.step();
 	//	this.sendResponse(response);
 	}
 
 	protected stepBackRequest(response: DebugProtocol.StepBackResponse, args: DebugProtocol.StepBackArguments): void {
-		console.log("MD:steapBAck Request");
+		//console.log("MD:steapBAck Request");
 	//	this._runtime.step(true);
 	//	this.sendResponse(response);
 	}
 
 	protected stepInTargetsRequest(response: DebugProtocol.StepInTargetsResponse, args: DebugProtocol.StepInTargetsArguments) {
-		console.log("MD:step in Target Request");
+		//console.log("MD:step in Target Request");
 		const targets = this._runtime.getStepInTargets(args.frameId);
 		response.body = {
 			targets: targets.map(t => { return { id: t.id, label: t.label }} )
@@ -401,19 +401,19 @@ export class MockDebugSession extends LoggingDebugSession {
 	}
 
 	protected stepInRequest(response: DebugProtocol.StepInResponse, args: DebugProtocol.StepInArguments): void {
-		console.log("MD:stepin Request");
+		//console.log("MD:stepin Request");
 	//	this._runtime.stepIn(args.targetId);
 	//	this.sendResponse(response);
 	}
 
 	protected stepOutRequest(response: DebugProtocol.StepOutResponse, args: DebugProtocol.StepOutArguments): void {
-		console.log("MD:stepout Request");
+		//console.log("MD:stepout Request");
 	//	this._runtime.stepOut();
 	//	this.sendResponse(response);
 	}
 
 	protected evaluateRequest(response: DebugProtocol.EvaluateResponse, args: DebugProtocol.EvaluateArguments): void {
-		console.log("MD:evaluate Request");
+		//console.log("MD:evaluate Request");
 		let reply: string | undefined = undefined;
 
 		if (args.context === 'repl') {
@@ -488,7 +488,7 @@ export class MockDebugSession extends LoggingDebugSession {
 	}
 
 	protected dataBreakpointInfoRequest(response: DebugProtocol.DataBreakpointInfoResponse, args: DebugProtocol.DataBreakpointInfoArguments): void {
-		console.log("MD:data BP Request");
+		//console.log("MD:data BP Request");
 		response.body = {
             dataId: null,
             description: "cannot break on data access",
@@ -510,7 +510,7 @@ export class MockDebugSession extends LoggingDebugSession {
 	}
 
 	protected setDataBreakpointsRequest(response: DebugProtocol.SetDataBreakpointsResponse, args: DebugProtocol.SetDataBreakpointsArguments): void {
-		console.log("MD:set DATA BP Request");
+		//console.log("MD:set DATA BP Request");
 		// clear all data breakpoints
 		this._runtime.clearAllDataBreakpoints();
 
@@ -530,7 +530,7 @@ export class MockDebugSession extends LoggingDebugSession {
 	}
 
 	protected completionsRequest(response: DebugProtocol.CompletionsResponse, args: DebugProtocol.CompletionsArguments): void {
-		console.log("MD:completion Request");
+		//console.log("MD:completion Request");
 		response.body = {
 			targets: [
 				{
@@ -562,7 +562,7 @@ export class MockDebugSession extends LoggingDebugSession {
 	}
 
 	protected cancelRequest(response: DebugProtocol.CancelResponse, args: DebugProtocol.CancelArguments) {
-		console.log("MD:csancel Request");
+		//console.log("MD:csancel Request");
 		if (args.requestId) {
 			this._cancelationTokens.set(args.requestId, true);
 		}
