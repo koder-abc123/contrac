@@ -65,13 +65,8 @@ export class MockRuntime extends EventEmitter {
 			this.continue();
 		}
 
-
-
-
 		let i = 0;
 		let debugProgram = this;
-
-
 
 		function readLines(input, func) {
 			var remaining = '';
@@ -96,7 +91,7 @@ export class MockRuntime extends EventEmitter {
 
 			for(let i=1; i < debugProgram.contentLines.length; i++) {
 				let kk: any = debugProgram.contentLines[i];
-			//	console.log(kk.env);
+				console.log(kk.env);
 			}
 
 			debugProgram.setBreakPoint(debugProgram._sourceFile,debugProgram.contentLines[debugProgram._global_counter].span.start_line);

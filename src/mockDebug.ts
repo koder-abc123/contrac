@@ -300,27 +300,55 @@ export class MockDebugSession extends LoggingDebugSession {
 			//console.log("non long running");
 		//	const id = this._variableHandles.get(args.variablesReference);
 
-			// for (var prop in context_variables) {
-			// 	if (Object.prototype.hasOwnProperty.call(context_variables, prop)) {
-			// 		variables.push({
-			// 			name: prop,
-			// 			type: Object.keys(prop)[0],
-			// 			value: prop[Object.keys(prop)[0]],
-			// 			variablesReference: 0
-			// 		});
-			// 	}
-			// }
+			for (var prop in context_variables) {
+				if (Object.prototype.hasOwnProperty.call(context_variables, prop)) {
 
-			// for (var prop in global_variables) {
-			// 	if (Object.prototype.hasOwnProperty.call(global_variables, prop)) {
-			// 		variables.push({
-			// 			name:  prop,
-			// 			type: Object.keys(prop)[0],
-			// 			value: "Object",
-			// 			variablesReference: this._variableHandles.create(prop + "_o")
-			// 		});
-			// 	}
-			// }
+				let prop_object = context_variables[prop];
+				console.log(prop_object[Object.keys(prop_object)[0]].toString());
+				//prop_object[Object.keys(prop_object)[0]]
+				let kelly = Object.keys(prop_object)[0];
+				let valley = prop_object[Object.keys(prop_object)[0]].toString()
+
+				variables.push({
+					name: prop,
+					type: kelly,
+					value: valley,
+					variablesReference: 0
+				});
+
+
+
+
+
+
+				}
+			}
+
+			for (var prop in global_variables.variables) {
+				if (Object.prototype.hasOwnProperty.call(global_variables.variables, prop)) {
+
+
+				let prop_object = global_variables.variables[prop];
+				console.log(prop_object[Object.keys(prop_object)[0]].toString());
+				//prop_object[Object.keys(prop_object)[0]]
+				let kelly = Object.keys(prop_object)[0];
+				let valley = prop_object[Object.keys(prop_object)[0]].toString();
+
+				variables.push({
+					name: prop,
+					type: kelly,
+					value: valley,
+					variablesReference: 0
+				});
+
+					// variables.push({
+					// 	name:  prop,
+					// 	type: Object.keys(prop)[0],
+					// 	value: "Object",
+					// 	variablesReference: 0
+					// });
+				}
+			}
 
 			// if (id) {
 			// 	variables.push({
