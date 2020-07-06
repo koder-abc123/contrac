@@ -104,7 +104,7 @@ export class MockRuntime extends EventEmitter {
 		  }
 
 
-		  var input = createReadStream(vscode.workspace.rootPath + "/meta_debug_with_stack.ctc");
+		  var input = createReadStream(vscode.workspace.rootPath + "/license_expiring.json");
 		  readLines(input, func);
 
 
@@ -381,7 +381,7 @@ export class MockRuntime extends EventEmitter {
 		return this.contentLines[this._global_counter].context;
 	}
 
-	public getGlobalVariables(){
+	public getEnv(){
 		return this.contentLines[this._global_counter].env;
 	}
 

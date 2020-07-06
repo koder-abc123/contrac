@@ -32,6 +32,12 @@ interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
 	noDebug?: boolean
 }
 
+
+class VariableReference {
+	public constructor(public msg_name: string, public msg_param: any, public datapath: string[]) {
+	}
+}
+
 export class MockDebugSession extends LoggingDebugSession {
 
 	// we don't support multiple threads, so we can use a hardcoded ID for the default thread
@@ -40,7 +46,8 @@ export class MockDebugSession extends LoggingDebugSession {
 	// a Mock runtime (or debugger)
 	private _runtime: MockRuntime;
 
-	private _variableHandles = new Handles<string>();
+	//private _variableHandles = new Handles<string>();
+	private _variableHandles = new Handles<VariableReference>();
 
 	private _configurationDone = new Subject();
 
@@ -252,23 +259,40 @@ export class MockDebugSession extends LoggingDebugSession {
 	protected scopesRequest(response: DebugProtocol.ScopesResponse, args: DebugProtocol.ScopesArguments): void {
 		//console.log("MD:scopes Request");
 
-
+		let contract_id = this._runtime.getEnv().contract_identifier;
 
 		response.body = {
 			scopes: [
-				new Scope("Local", this._variableHandles.create("local"), false),
+				// new Scope(contract_id.name + " variables", this._variableHandles.create("local"), false),
+				new Scope(contract_id.name + " variables", this._variableHandles.create(new VariableReference("get_local_variable", { "stack_no": args.frameId, "global": false, "local": true, "upvalue": false }, [])), false),
+				// new Scope(contract_id.name + " variables", this._variableHandles.create(new VariableReference("get_local_variable", { "stack_no": args.frameId, "global": false, "local": true, "upvalue": false }, []) , false),
+
 			//	new Scope("Global", this._variableHandles.create("global"), true)
 			]
 		};
 		this.sendResponse(response);
 	}
 
+	protected stringify(value: any): string {
+		if (value == null) {
+			return "nil";
+		}
+		else if (value == undefined) {
+			return "none";
+		}
+		else {
+			return JSON.stringify(value);
+		}
+	}
+
 	protected async variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments, request?: DebugProtocol.Request) {
 		//console.log("MD:Variable Request");
 		const variables: DebugProtocol.Variable[] = [];
+		//const nv: DebugProtocol.Variable[] = [];
+		const id = this._variableHandles.get(args.variablesReference);
 
 		let context_variables = this._runtime.getVariables();
-		let global_variables = this._runtime.getGlobalVariables();
+		let env = this._runtime.getEnv();
 
 		//console.log("MD",context_variables);
 
@@ -299,6 +323,8 @@ export class MockDebugSession extends LoggingDebugSession {
 		} else {
 			//console.log("non long running");
 		//	const id = this._variableHandles.get(args.variablesReference);
+		//const amount_ref = this._variableHandles.create("local_amount");
+		if(id.datapath.length == 0){
 
 			for (var prop in context_variables) {
 				if (Object.prototype.hasOwnProperty.call(context_variables, prop)) {
@@ -307,48 +333,70 @@ export class MockDebugSession extends LoggingDebugSession {
 				console.log(prop_object[Object.keys(prop_object)[0]].toString());
 				//prop_object[Object.keys(prop_object)[0]]
 				let kelly = Object.keys(prop_object)[0];
-				let valley = prop_object[Object.keys(prop_object)[0]].toString()
-
-				variables.push({
-					name: prop,
-					type: kelly,
-					value: valley,
-					variablesReference: 0
-				});
-
-
-
-
-
-
-				}
-			}
-
-			for (var prop in global_variables.variables) {
-				if (Object.prototype.hasOwnProperty.call(global_variables.variables, prop)) {
-
-
-				let prop_object = global_variables.variables[prop];
-				console.log(prop_object[Object.keys(prop_object)[0]].toString());
-				//prop_object[Object.keys(prop_object)[0]]
-				let kelly = Object.keys(prop_object)[0];
 				let valley = prop_object[Object.keys(prop_object)[0]].toString();
 
 				variables.push({
-					name: prop,
+					name: "local_" + prop,
 					type: kelly,
 					value: valley,
 					variablesReference: 0
 				});
 
-					// variables.push({
-					// 	name:  prop,
-					// 	type: Object.keys(prop)[0],
-					// 	value: "Object",
-					// 	variablesReference: 0
-					// });
+
+		}
+
+
+
+
+
+
 				}
 			}
+		//	const g_ref = this._variableHandles.create("global_vars");
+
+			let root_object = env.variables;
+
+			for(let i=0; i< id.datapath.length; i++){
+				root_object = root_object[id.datapath[i]];
+			}
+
+			if (root_object instanceof Array) {
+				for (let i = 0; i < root_object.length; ++i) {
+					const typename = typeof root_object[i];
+					let k = (i + 1).toString()
+					let varRef = 0;
+					if (typename == "object") {
+						varRef = this._variableHandles.create(new VariableReference("eval", id.msg_param, id.datapath.concat([k])));
+					}
+					variables.push({
+						name: k,
+						type: typename,
+						value: this.stringify(root_object[i]),
+						variablesReference: varRef
+					});
+				}
+			}
+			else
+			{
+				for (var prop in root_object) {
+					if (Object.prototype.hasOwnProperty.call(root_object, prop)) {
+
+					let prop_object = root_object[prop];
+					console.log(typeof(prop_object[Object.keys(prop_object)[0]]));
+
+					let tt = this._variableHandles.create(new VariableReference("eval", id.msg_param, id.datapath.concat([prop])));
+
+					variables.push({
+						name: prop,
+						type: typeof(root_object),
+						value: this.stringify(root_object),
+						variablesReference: tt
+					});
+
+					}
+				}
+			}
+
 
 			// if (id) {
 			// 	variables.push({
@@ -525,13 +573,13 @@ export class MockDebugSession extends LoggingDebugSession {
         };
 
 		if (args.variablesReference && args.name) {
-			const id = this._variableHandles.get(args.variablesReference);
-			if (id.startsWith("global_")) {
+		//	const id = this._variableHandles.get(args.variablesReference);
+		//	if (id.startsWith("global_")) {
 				response.body.dataId = args.name;
 				response.body.description = args.name;
 				response.body.accessTypes = [ "read" ];
 				response.body.canPersist = true;
-			}
+		//	}
 		}
 
 		this.sendResponse(response);

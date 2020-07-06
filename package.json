@@ -2,7 +2,7 @@
 	"name": "contrac",
 	"displayName": "ContraC",
 	"version": "0.0.1",
-	"publisher": "koder_abc123",
+	"publisher": "koder-abc123",
 	"description": "Vscode tool to aid in clarity development",
 	"author": {
 		"name": "koder_abc123",
@@ -13,7 +13,7 @@
 		"clarity"
 	],
 	"engines": {
-		"vscode": "^1.46.0"
+		"vscode": "^1.46.1"
 	},
 	"categories": [
 		"Debuggers"
