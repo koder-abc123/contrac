@@ -1,4 +1,5 @@
-# Contrac
+
+<span><img width="50px" height="50px" src="./contrac_logo.svg"><h3>Contrac</h3></span>
 
 Vscode tool to aid in clarity development
 
