@@ -2,7 +2,7 @@ Contrac - Vscode tool to aid in clarity development
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#snapshot/da3d6b16-ffc2-420c-8746-24015cc802e3)
 
-It is loosely inspired from [rr](https://github.com/mozilla/rr) by allowing the creation of trace files(.ctc) during contract call.
+It is loosely inspired from [rr](https://github.com/mozilla/rr) by allowing the creation of trace files(.ctc).
 The .ctc files are generated during contract calls (via changes made to [stacks-blockchain](https://github.com/koder-abc123/stacks-blockchain/commits/contrac_support)) which could be shared with the community.
 
 ### What
