@@ -17,7 +17,7 @@ Contrac is a tool designed to allow the following:
 - Variables
 - Callstack
 
-### WIP:
+### WIP
 - Howtos
 - Breakpoints
 - Watchpoints
