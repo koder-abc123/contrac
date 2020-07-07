@@ -11,7 +11,7 @@ The .ctc files are generated during contract calls (via changes made to [stacks-
 Contrac is a tool designed to allow the following:
 - As a clarity learning tool for beginners.(like me)
 - Aid in clarity debugging.
-- Once the contracts are deployed on chain, could possibly used as a permanent contract analytics source via [arweave](https://github.com/ArweaveTeam/arweave) integration.
+- Once the contracts are deployed on chain, could possibly be used as a permanent contract analytics source via [arweave](https://github.com/ArweaveTeam/arweave) integration.
 
 
 ### What works now
