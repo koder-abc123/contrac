@@ -1,8 +1,9 @@
 
-import { readFileSync,createReadStream } from 'fs';
+import { readFileSync } from 'fs';
 import { EventEmitter } from 'events';
 //import * as vscode from "vscode";
-var vscode = require("vscode");
+//var vscode = require("vscode");
+const https = require('https');
 
 export interface MockBreakpoint {
 	id: number;
@@ -68,62 +69,97 @@ export class MockRuntime extends EventEmitter {
 		let i = 0;
 		let debugProgram = this;
 
-		function readLines(input, func) {
-			var remaining = '';
+		// function readLines(input, func) {
+		// 	var remaining = '';
 
-			input.on('data', function(data) {
-			  remaining += data;
-			  var index = remaining.indexOf('\n');
-			  while (index > -1) {
+		// 	input.on('data', function(data) {
+		// 	  remaining += data;
+		// 	  var index = remaining.indexOf('\n');
+		// 	  while (index > -1) {
+		// 		var line = remaining.substring(0, index);
+		// 		remaining = remaining.substring(index + 1);
+		// 		func(line);
+		// 		index = remaining.indexOf('\n');
+		// 	  }
+		// 	});
+
+		// 	input.on('end', function() {
+
+		// 	if (remaining.length > 0) {
+		// 	func(remaining);
+		// 	}
+
+
+		// 	for(let i=1; i < debugProgram.contentLines.length; i++) {
+		// 		let kk: any = debugProgram.contentLines[i];
+		// 		console.log(kk.env);
+		// 	}
+
+		// 	debugProgram.setBreakPoint(debugProgram._sourceFile,debugProgram.contentLines[debugProgram._global_counter].span.start_line);
+
+		// 	});
+		//   }
+
+
+		//   function func(data) {
+		// 	debugProgram.contentLines[++i] = JSON.parse(data);
+		//   }
+
+
+		let demo_filenames = ["escrow","license","fungible"];
+		let debug_filenames = [
+			"https://raw.githubusercontent.com/koder-abc123/contrac-demo/master/escrow_deposit.ctc",
+			"https://raw.githubusercontent.com/koder-abc123/contrac-demo/master/has-valid-license.ctc",
+			"https://raw.githubusercontent.com/koder-abc123/contrac-demo/master/transfer-token.ctc"
+		];
+		let debug_file_name = "";
+		for(let i = 0; i < debug_filenames.length; i++) {
+			var result = program.search(new RegExp(demo_filenames[i], "i")) > 0 ? 'Matched' : 'notMatched'
+			if(result == "Matched") {
+				debug_file_name = debug_filenames[i];
+				break;
+			}
+		}
+
+		https.get(debug_file_name, (resp) => {
+
+		let remaining = '';
+
+		// A chunk of data has been recieved.
+		resp.on('data', (chunk) => {
+
+			remaining += chunk;
+			var index = remaining.indexOf('\n');
+			while (index > -1) {
 				var line = remaining.substring(0, index);
 				remaining = remaining.substring(index + 1);
-				func(line);
+				//func(line);
+				debugProgram.contentLines[++i] = JSON.parse(line);
 				index = remaining.indexOf('\n');
-			  }
-			});
+			}
+		});
 
-			input.on('end', function() {
-
+		// The whole response has been received. Print out the result.
+		resp.on('end', () => {
+			//console.log(data);
 			if (remaining.length > 0) {
-			func(remaining);
-			}
+
+				debugProgram.contentLines[++i] = JSON.parse(remaining);
+				}
 
 
-			for(let i=1; i < debugProgram.contentLines.length; i++) {
-				let kk: any = debugProgram.contentLines[i];
-				console.log(kk.env);
-			}
+				for(let i=1; i < debugProgram.contentLines.length; i++) {
+					let kk: any = debugProgram.contentLines[i];
+					console.log(kk.env);
+				}
 
-			debugProgram.setBreakPoint(debugProgram._sourceFile,debugProgram.contentLines[debugProgram._global_counter].span.start_line);
-
+				debugProgram.setBreakPoint(debugProgram._sourceFile,debugProgram.contentLines[debugProgram._global_counter].span.start_line);
 			});
-		  }
 
-		  function func(data) {
-			debugProgram.contentLines[++i] = JSON.parse(data);
-		  }
+			}).on("error", (err) => {
+				console.log("Error: " + err.message);
+			});
 
-
-		  var input = createReadStream(vscode.workspace.rootPath + "/license_expiring.json");
-		  readLines(input, func);
-
-
-
-
-
-
-
-		// for(let i=0; i < debug_obj.length; i++) {
-		// 	console.log(debug_obj[i]);
-		// }
-		// for(let i=0; i < contentLines.length; i++) {
-		// 	try {
-		// 		JSON.parse((contentLines[i]));
-		// 	} catch (e) {
-		// 		console.log(e);
-		// 		return;
-		// 	}
-		// }
 
 
 	}
