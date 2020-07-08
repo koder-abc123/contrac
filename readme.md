@@ -28,6 +28,9 @@ Contrac is a tool designed to allow the following:
 ## TBD
 - Right now single contract calls are tracked, nested contract call tracking is required.
 
+## Howtos
+- [Gitpod starter](./howtos/gitpod_starter.md)
+
 ## VSCode
 ![](contrac.gif)
 
